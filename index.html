@@ -1,0 +1,1221 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>COMP6007 MCQ App</title>
+  <style>
+    :root {
+      --ink: #17211b;
+      --muted: #627269;
+      --paper: #f6f1e5;
+      --panel: #fffdf6;
+      --line: #d8ccb8;
+      --green: #168044;
+      --green-soft: #e1f4e8;
+      --red: #b83d35;
+      --red-soft: #fae8e5;
+      --gold: #be8522;
+      --blue: #1f5e8c;
+      --shadow: 0 18px 44px rgba(40, 33, 22, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(23, 33, 27, 0.045) 1px, transparent 1px),
+        linear-gradient(rgba(23, 33, 27, 0.045) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    button, input { font: inherit; }
+
+    .app-shell {
+      display: grid;
+      grid-template-columns: 320px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      border-right: 1px solid var(--line);
+      background: rgba(255, 253, 246, 0.94);
+      padding: 24px 18px;
+    }
+
+    .brand {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 58px;
+      height: 58px;
+      border: 2px solid var(--ink);
+      background: var(--green);
+      color: white;
+      box-shadow: 5px 5px 0 var(--ink);
+      font-family: "Trebuchet MS", Verdana, sans-serif;
+      font-weight: 900;
+    }
+
+    .eyebrow, .build-label, .week-progress, .pill, .source-tab, .check-button, .reset-button, .reset-section-button {
+      font-family: "Trebuchet MS", Verdana, sans-serif;
+    }
+
+    .eyebrow {
+      margin: 0 0 4px;
+      color: var(--green);
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    h1 {
+      margin-bottom: 4px;
+      font-size: 1.55rem;
+      line-height: 1;
+    }
+
+    .build-label {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+    }
+
+    .meter-card, .summary-strip, .question-card, .empty-state {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .meter-card {
+      padding: 14px;
+      margin-bottom: 18px;
+    }
+
+    .meter-card strong, .summary-strip strong {
+      display: block;
+      font-family: "Trebuchet MS", Verdana, sans-serif;
+      font-size: 1.05rem;
+    }
+
+    .meter-card p, .summary-strip p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .meter {
+      height: 10px;
+      margin-top: 12px;
+      border: 1px solid var(--ink);
+      background: #e8ddc8;
+      overflow: hidden;
+    }
+
+    .meter span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: var(--green);
+      transition: width 180ms ease;
+    }
+
+    .week-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .week-button {
+      display: grid;
+      grid-template-columns: 38px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      width: 100%;
+      min-height: 54px;
+      border: 1px solid var(--line);
+      background: rgba(255, 253, 246, 0.8);
+      color: var(--ink);
+      padding: 8px 10px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .week-button.active, .week-button:hover {
+      border-color: var(--ink);
+      background: white;
+    }
+
+
+    .week-button.section-correct {
+      border-color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .week-button.section-wrong {
+      border-color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .week-button.absent-week {
+      border-color: #8f1f18;
+      background: var(--red);
+      color: white;
+      cursor: default;
+    }
+
+    .week-button.absent-week:hover {
+      border-color: #8f1f18;
+      background: var(--red);
+    }
+
+    .week-button.absent-week .week-number {
+      border-color: white;
+      background: #8f1f18;
+      color: white;
+    }
+
+    .week-button.absent-week .week-progress {
+      color: white;
+    }
+    .week-number {
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--ink);
+      background: #f0e4c8;
+      font-family: "Trebuchet MS", Verdana, sans-serif;
+      font-weight: 900;
+    }
+
+    .week-button.active .week-number {
+      background: var(--green);
+      color: white;
+    }
+
+    .week-title {
+      overflow: hidden;
+      font-weight: 800;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .week-progress {
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 800;
+    }
+
+    .workspace {
+      min-width: 0;
+      padding: 30px clamp(18px, 4vw, 54px) 54px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .topbar h2 {
+      max-width: 880px;
+      margin-bottom: 0;
+      font-size: clamp(2rem, 4vw, 4.15rem);
+      line-height: 0.98;
+    }
+
+    .view-tabs {
+      display: inline-grid;
+      grid-template-columns: 1fr 1fr;
+      min-width: min(470px, 100%);
+      border: 1px solid var(--ink);
+      background: var(--ink);
+      gap: 1px;
+    }
+
+    .source-tab {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 48px;
+      border: 0;
+      background: var(--panel);
+      color: var(--ink);
+      padding: 10px 14px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .source-tab.active {
+      background: var(--ink);
+      color: white;
+    }
+
+    .source-tab strong {
+      display: grid;
+      place-items: center;
+      min-width: 28px;
+      height: 24px;
+      border: 1px solid currentColor;
+      padding: 0 7px;
+      font-size: 0.78rem;
+    }
+
+    .summary-strip {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      margin-bottom: 22px;
+    }
+
+    .summary-strip > div {
+      min-width: 0;
+      padding: 15px 16px;
+      border-right: 1px solid var(--line);
+    }
+
+    .summary-strip > div:last-child { border-right: 0; }
+
+    .question-panel {
+      display: grid;
+      gap: 16px;
+    }
+
+    .question-card {
+      overflow: hidden;
+      animation: rise 220ms ease both;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .question-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      background: #ede9dd;
+    }
+
+    .question-header h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .pill {
+      flex: 0 0 auto;
+      border: 1px solid var(--ink);
+      background: white;
+      padding: 5px 8px;
+      font-size: 0.72rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .question-body { padding: 18px; }
+
+    .prompt {
+      margin-bottom: 16px;
+      font-size: 1.03rem;
+      line-height: 1.46;
+      white-space: pre-line;
+    }
+
+    .options {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .option {
+      display: grid;
+      grid-template-columns: 22px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      width: 100%;
+      border: 1px solid var(--line);
+      background: white;
+      padding: 12px;
+      color: var(--ink);
+      cursor: pointer;
+      line-height: 1.38;
+      text-align: left;
+    }
+
+    .option:hover { border-color: var(--blue); }
+
+    .option input {
+      width: 17px;
+      height: 17px;
+      margin: 2px 0 0;
+      accent-color: var(--green);
+    }
+
+    .option.correct {
+      border-color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .option.incorrect {
+      border-color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .check-button, .reset-button, .reset-section-button {
+      min-height: 40px;
+      border: 1px solid var(--ink);
+      padding: 8px 14px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .check-button {
+      background: var(--ink);
+      color: white;
+    }
+
+    .reset-button {
+      background: white;
+      color: var(--ink);
+    }
+
+    .feedback {
+      display: none;
+      margin-top: 14px;
+      border-left: 5px solid var(--gold);
+      background: #fff7df;
+      padding: 12px 14px;
+      line-height: 1.45;
+    }
+
+    .feedback.visible { display: block; }
+
+    .feedback.correct-answer {
+      border-left-color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .empty-state {
+      display: grid;
+      place-items: center;
+      min-height: 320px;
+      padding: 34px;
+      text-align: center;
+    }
+
+    .empty-icon {
+      display: grid;
+      place-items: center;
+      width: 60px;
+      height: 60px;
+      margin-bottom: 18px;
+      border: 2px dashed var(--green);
+      color: var(--green);
+      font-family: "Trebuchet MS", Verdana, sans-serif;
+      font-size: 1.9rem;
+      font-weight: 900;
+    }
+
+    .empty-state h3 {
+      margin-bottom: 8px;
+      font-size: 1.8rem;
+    }
+
+    .empty-state p {
+      max-width: 620px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    @media (max-width: 960px) {
+      .app-shell { grid-template-columns: 1fr; }
+      .sidebar {
+        position: static;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .week-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .topbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .sidebar, .workspace { padding: 18px 14px; }
+      .week-list, .summary-strip, .view-tabs { grid-template-columns: 1fr; }
+      .summary-strip > div {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .summary-strip > div:last-child { border-bottom: 0; }
+      .source-tab { justify-content: space-between; }
+      .question-header {
+        align-items: start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Week navigation">
+      <div class="brand">
+        <span class="brand-mark">C7</span>
+        <div>
+          <p class="eyebrow">COMP6007</p>
+          <h1>MCQ Studio</h1>
+          <p class="build-label">Build 2026-06-14: Weeks 1-10, W3 Canvas, W1-W3 AI</p>
+        </div>
+      </div>
+
+      <div class="meter-card">
+        <div>
+          <strong id="overall-count">0 / 0</strong>
+          <p>questions checked</p>
+        </div>
+        <div class="meter"><span id="overall-meter"></span></div>
+      </div>
+
+      <nav class="week-list" id="week-list"></nav>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow" id="week-label">Week 1</p>
+          <h2 id="week-title">Week 1</h2>
+        </div>
+        <div class="view-tabs" role="tablist" aria-label="Question source">
+          <button class="source-tab active" type="button" data-source="canvas">
+            <span>Canvas MCQ</span>
+            <strong id="canvas-count">0</strong>
+          </button>
+          <button class="source-tab" type="button" data-source="ai">
+            <span>AI Generated MCQs</span>
+            <strong id="ai-count">0</strong>
+          </button>
+        </div>
+      </header>
+
+      <section class="summary-strip" aria-label="Current week summary">
+        <div><strong id="section-count">0</strong><p>questions in this section</p></div>
+        <div><strong id="section-score">0</strong><p>correct after checking</p></div>
+        <div><strong id="section-mode">Canvas MCQ</strong><p>current section</p></div>
+        <div><strong id="data-status">Ready</strong><p>data status</p></div>
+        <div><button class="reset-section-button" type="button" id="reset-section">Reset section</button><p>clear current answers</p></div>
+      </section>
+
+      <section class="question-panel" id="question-panel" aria-live="polite"></section>
+    </main>
+  </div>
+
+  <template id="empty-template">
+    <article class="empty-state">
+      <span class="empty-icon">+</span>
+      <h3>No questions in this section yet</h3>
+      <p>Canvas MCQs are only added when you provide the course quiz screenshots. AI Generated MCQs are currently available for Weeks 1-3.</p>
+    </article>
+  </template>
+
+  <script>
+    const weeks = Array.from({ length: 10 }, (_, index) => ({
+      id: index + 1,
+      title: `Week ${index + 1}`,
+      canvas: [],
+      ai: []
+    }));
+
+    weeks[0].title = "Week 1: Cybersecurity Basics, Lifecycle, System and Threat Models";
+    weeks[1].title = "Week 2: AI-Assisted Vulnerability Discovery and Android App Lifecycle";
+    weeks[2].title = "Week 3: Mobile Security Continued and Responsible Disclosure";
+    weeks[3].title = "Week 4: Cryptography Basics Part 1";
+    weeks[4].title = "Week 5: Cryptography Basics Part 2";
+    weeks[5].title = "Week 6: Cryptography Basics Part 3 and Secure Network";
+    weeks[6].title = "Week 7: Secure Network, UDP, TCP, TLS and HTTPS";
+    weeks[7].title = "Week 8: System Security";
+    weeks[8].title = "Week 10: Consensus, Blockchain and Decentralised Finance";
+    weeks[9].title = "Week 11: Human, Organisational and Regulatory Aspects";
+
+    weeks[0].ai = [
+      {
+        id: "w1-ai-1",
+        type: "MCQ",
+        prompt: "In the Week 1 slides, why is cybersecurity described as end-to-end rather than as one magic control?",
+        options: [
+          "Because every system component and assumption can become the weak point",
+          "Because encryption alone protects every layer if configured once",
+          "Because only network firewalls matter in modern systems",
+          "Because users are outside the security model"
+        ],
+        correct: [0],
+        feedback: "Security is a chain across users, devices, networks, servers, databases, processes and people. One failed layer can be enough."
+      },
+      {
+        id: "w1-ai-2",
+        type: "MAQ",
+        prompt: "Which items are part of the CIA triad introduced in Week 1?",
+        options: [
+          "Confidentiality",
+          "Integrity",
+          "Availability",
+          "Authentication"
+        ],
+        correct: [0, 1, 2],
+        feedback: "CIA stands for confidentiality, integrity and availability. Authentication is important, but it is not one of the three CIA labels."
+      },
+      {
+        id: "w1-ai-3",
+        type: "MCQ",
+        prompt: "What is the main purpose of a threat model?",
+        options: [
+          "To list who the attacker is, what they can do and what they want",
+          "To prove that the system has no vulnerabilities",
+          "To replace testing after deployment",
+          "To describe only the visual user interface"
+        ],
+        correct: [0],
+        feedback: "A threat model defines adversary types, capabilities, goals and attack assumptions."
+      },
+      {
+        id: "w1-ai-4",
+        type: "MCQ",
+        prompt: "What does a system model mainly define?",
+        options: [
+          "The assets, components, actors, environment and assumptions of the system",
+          "The exact exploit code an attacker will use",
+          "Only the final exam topics",
+          "Only the names of installed software packages"
+        ],
+        correct: [0],
+        feedback: "System models define what exists and what assumptions are made before security claims can be evaluated."
+      },
+      {
+        id: "w1-ai-5",
+        type: "MCQ",
+        prompt: "Why does the lecture describe security as a lifecycle?",
+        options: [
+          "Because systems must be designed, monitored, patched and improved over time",
+          "Because security work ends once the software is deployed",
+          "Because post-mortems are unnecessary if tests passed",
+          "Because vulnerabilities only exist before deployment"
+        ],
+        correct: [0],
+        feedback: "Security involves pre-deployment design and testing, post-deployment monitoring, incident response, patching and repeated improvement."
+      },
+      {
+        id: "w1-ai-6",
+        type: "MCQ",
+        prompt: "In the Bybit-style case study, what made the approval workflow dangerous?",
+        options: [
+          "The human approval UI could be spoofed, so staff approved a malicious action",
+          "The blockchain cryptography was mathematically broken",
+          "The system had too much availability protection",
+          "The attack required no user interaction or process failure"
+        ],
+        correct: [0],
+        feedback: "The lesson is that people and approval interfaces are part of the security system."
+      }
+    ];
+
+    weeks[1].ai = [
+      {
+        id: "w2-ai-1",
+        type: "MCQ",
+        prompt: "Which statement best matches the Week 2 description of GPT or LLM behavior?",
+        options: [
+          "It is a next-token prediction system that predicts patterns",
+          "It always computes ground truth before speaking",
+          "It performs formal verification before answering",
+          "It only repeats exact training examples"
+        ],
+        correct: [0],
+        feedback: "The slides emphasize that GPTs predict likely next tokens and patterns; they do not directly know truth."
+      },
+      {
+        id: "w2-ai-2",
+        type: "MCQ",
+        prompt: "Why can hallucination occur even when the pre-training data is good?",
+        options: [
+          "Because text, code and traces become tokens, vectors, probabilities and samples",
+          "Because hallucination only comes from malicious users",
+          "Because models refuse to process source code",
+          "Because all security tasks are formally verified"
+        ],
+        correct: [0],
+        feedback: "The model samples from probabilities over token representations, so plausible but ungrounded output can occur."
+      },
+      {
+        id: "w2-ai-3",
+        type: "MCQ",
+        prompt: "Why is decompilation from machine code back to high-level code difficult for an LLM?",
+        options: [
+          "Machine code has less natural-language signal, is low-level and ambiguous, and requires semantic reasoning",
+          "Android devices bundle the original source code with every APK",
+          "Machine code always includes comments that confuse the model",
+          "Decompilation only fails for Kotlin"
+        ],
+        correct: [0],
+        feedback: "The slides call out low-level ambiguity, fewer clean paired examples and the need for semantic reasoning."
+      },
+      {
+        id: "w2-ai-4",
+        type: "MAQ",
+        prompt: "Which actions help reduce hallucinated vulnerability reports?",
+        options: [
+          "Ask for concrete proof or an exact execution trace",
+          "Ask for a minimal reproducible example or PoC",
+          "Report the first plausible-looking answer immediately",
+          "Avoid validation so the model stays unconstrained"
+        ],
+        correct: [0, 1],
+        feedback: "Demanding proof, a trace, a reproducible example or a PoC helps test whether a vulnerability claim is real."
+      },
+      {
+        id: "w2-ai-5",
+        type: "MCQ",
+        prompt: "What is the main point of 'reasoning is not enough' in AI-assisted security analysis?",
+        options: [
+          "Large systems require tools, environment interaction and validation, not just text reasoning",
+          "Reasoning models cannot write text",
+          "Security analysis should avoid repositories",
+          "Tools remove the need for human validation"
+        ],
+        correct: [0],
+        feedback: "The slides highlight that real codebases are large and AI often needs tools such as search, execution and inspection."
+      },
+      {
+        id: "w2-ai-6",
+        type: "MCQ",
+        prompt: "Which statement about APK files matches the Week 2 Android app lifecycle discussion?",
+        options: [
+          "An APK is a signed package with a zip-like structure, including files such as AndroidManifest.xml and DEX bytecode",
+          "An APK contains only raw machine code and no manifest",
+          "An APK cannot be unpacked because it is not archive-based",
+          "Android runs Java or Kotlin source code directly from the APK"
+        ],
+        correct: [0],
+        feedback: "The slides describe source being processed through bytecode/DEX and then packaged into a signed APK with a recognizable structure."
+      }
+    ];
+
+    weeks[2].canvas = [
+      {
+        id: "w3-canvas-1",
+        type: "MCQ",
+        prompt: "Which statement best matches the slides' description of GPT or LLM behavior?",
+        options: [
+          "It is a next-token prediction system that predicts patterns",
+          "It first determines ground truth, then writes the answer in natural language",
+          "It only copies exact sentences from its training data",
+          "It performs formal verification before answering"
+        ],
+        correct: [0],
+        feedback: "GPTs are next-token or pattern-prediction systems rather than truth engines."
+      },
+      {
+        id: "w3-canvas-2",
+        type: "MCQ",
+        prompt: "Why is decompilation from machine code back to high-level code difficult for an LLM?",
+        options: [
+          "Because Android devices refuse to execute bytecode unless the source code is bundled with it",
+          "Because machine code already includes the programmer's comments, which confuses the model",
+          "Because decompilation only fails when the original source code was written in Kotlin",
+          "Machine code provides less natural-language signal, is low-level and ambiguous, and requires reasoning about semantics rather than just syntax"
+        ],
+        correct: [3],
+        feedback: "Decompilation is difficult because machine code has less natural-language signal, is low-level and ambiguous, and requires reasoning about semantics rather than just surface syntax."
+      },
+      {
+        id: "w3-canvas-3",
+        type: "MCQ",
+        prompt: "Which statement about Android app sandboxing is correct?",
+        options: [
+          "Apps normally read other apps' private data unless the user enables extra sandbox settings",
+          "Every app normally runs as a separate Linux user, which helps isolate its process and files",
+          "Apps talk directly to hardware without mediation by the framework or kernel",
+          "Sandboxing mainly comes from app-store review rather than OS isolation"
+        ],
+        correct: [1],
+        feedback: "Each Android app normally runs as a separate Linux user, providing process isolation, memory isolation, and file-permission separation."
+      },
+      {
+        id: "w3-canvas-4",
+        type: "MCQ",
+        prompt: "Which statement about APKs is correct?",
+        options: [
+          "Android runs the original Java or Kotlin source code directly from the APK",
+          "APK files cannot be unpacked because they are not archive-based",
+          "\"classes.dex\" stores compiled Android bytecode",
+          "Decompilation always reconstructs the exact original source code"
+        ],
+        correct: [2],
+        feedback: "\"classes.dex\" contains compiled Android bytecode. APKs are basically zip archives, and decompilers are not perfect."
+      },
+      {
+        id: "w3-canvas-5",
+        type: "MCQ",
+        prompt: "Why does the runtime UI tree matter for mobile agents?",
+        options: [
+          "It guarantees every visible element is safe to interact with",
+          "It removes the need to observe again after taking an action",
+          "It hides package and interface information from the agent",
+          "It turns the visible screen into machine-readable structure such as text, bounds, and clickability"
+        ],
+        correct: [3],
+        feedback: "It turns the visible screen into machine-readable structure such as text, bounds, and clickability."
+      },
+      {
+        id: "w3-canvas-6",
+        type: "MAQ",
+        prompt: "Which actions help reduce hallucinated vulnerability reports?",
+        options: [
+          "Ask for concrete proof, a minimal reproducible example, or an exact execution trace",
+          "Ask the model to generate a PoC",
+          "Avoid validation so the model does not get constrained",
+          "Trust the first plausible-looking finding as report-ready"
+        ],
+        correct: [0, 1],
+        feedback: "Concrete proof, a minimal reproducible example, an execution trace or a PoC helps test whether the claim is real."
+      },
+      {
+        id: "w3-canvas-7",
+        type: "MAQ",
+        prompt: "Which actions help reduce missed vulnerabilities during AI-assisted analysis?",
+        options: [
+          "Always stop once the first obvious issue is found",
+          "One long run already covers all relevant attack paths",
+          "Change phrasing, model, or temperature",
+          "Run multiple analyses"
+        ],
+        correct: [2, 3],
+        feedback: "Changing prompts, models or temperature and running multiple analyses can expose findings that one run misses."
+      },
+      {
+        id: "w3-canvas-8",
+        type: "MAQ",
+        prompt: "Which statements about Android component exposure are correct?",
+        options: [
+          "A launcher entry activity is commonly exported so it can be started as the app entry-point",
+          "If a component is launched via an intent, that alone means it is insecure",
+          "Sensitive activities can rely only on who launched them and skip auth or session checks",
+          "\"android:exported=\\\"false\\\"\" is safer by default for internal-only screens"
+        ],
+        correct: [0, 3],
+        feedback: "Launcher activities are commonly exported. Internal-only screens are safer by default when not exported."
+      },
+      {
+        id: "w3-canvas-9",
+        type: "MAQ",
+        prompt: "Which statements about deep links are correct?",
+        options: [
+          "Deep links are harmless because they cannot set up a dangerous state",
+          "Android matches incoming URIs using \"intent-filter\" rules in the manifest",
+          "If incoming parameters are not validated, attacker-chosen values can influence app behavior",
+          "\"android.intent.category.BROWSABLE\" means only the app vendor's own website can open the activity"
+        ],
+        correct: [1, 2],
+        feedback: "Android matches deep links with manifest intent-filter rules, and unvalidated parameters can manipulate app behavior."
+      },
+      {
+        id: "w3-canvas-10",
+        type: "MAQ",
+        prompt: "Which disclosure practices are appropriate when a real vulnerability is discovered during research or coursework?",
+        options: [
+          "Publish the full technical details publicly before contacting the vendor",
+          "Make sure you are talking to the right person and ask for the procedure or channel first",
+          "Report the vulnerability privately",
+          "Exploit the same system to measure impact more accurately"
+        ],
+        correct: [1, 2],
+        feedback: "Use the proper contact or procedure and report privately. Do not publicly drop details or keep exploiting real systems."
+      }
+    ];
+
+    weeks[2].ai = [
+      {
+        id: "w3-ai-1",
+        type: "MCQ",
+        prompt: "Why does mobile security remain important in the age of AI?",
+        options: [
+          "Smartphones contain sensitive personal data and often represent the user's identity",
+          "AI makes mobile devices impossible to attack",
+          "Only desktop systems store valuable data",
+          "Mobile apps cannot interact with each other"
+        ],
+        correct: [0],
+        feedback: "The Week 3 slides emphasize that phones contain sensitive data and mobile security affects billions of users."
+      },
+      {
+        id: "w3-ai-2",
+        type: "MCQ",
+        prompt: "Why does Android normally isolate apps from each other?",
+        options: [
+          "The system assumes every app may be malicious, so isolation is needed",
+          "All apps are written by the same trusted developer",
+          "Apps never need to share data or invoke each other",
+          "The Play Store review process replaces OS isolation"
+        ],
+        correct: [0],
+        feedback: "Android's model assumes apps do not trust each other and therefore need process, memory and file isolation."
+      },
+      {
+        id: "w3-ai-3",
+        type: "MAQ",
+        prompt: "Which mechanisms allow Android apps or the system to interact across boundaries?",
+        options: [
+          "Intents",
+          "Content providers",
+          "System services",
+          "Direct unrestricted access to another app's private files"
+        ],
+        correct: [0, 1, 2],
+        feedback: "The slides mention intents, content providers and system services as special interaction mechanisms."
+      },
+      {
+        id: "w3-ai-4",
+        type: "MCQ",
+        prompt: "What role does the Android framework play in accessing phone features?",
+        options: [
+          "Apps ask framework services, which mediate features and check permissions",
+          "Apps always talk directly to the hardware",
+          "The framework only stores icons and UI themes",
+          "The framework disables all third-party APIs"
+        ],
+        correct: [0],
+        feedback: "Apps use services such as Activity Manager, Package Manager, Location Manager and Sensor Manager rather than directly controlling hardware."
+      },
+      {
+        id: "w3-ai-5",
+        type: "MCQ",
+        prompt: "What is a safe default for an Android activity intended only for internal use?",
+        options: [
+          "Set android:exported=\"false\" unless external launch is required",
+          "Always export it so other apps can test it",
+          "Skip authentication because only intents can reach it",
+          "Trust all extras from incoming intents"
+        ],
+        correct: [0],
+        feedback: "Internal-only screens should not be exported by default, and sensitive flows still need validation and authorization."
+      },
+      {
+        id: "w3-ai-6",
+        type: "MCQ",
+        prompt: "Why can a deep link vulnerability be serious even if it does not complete the attack by itself?",
+        options: [
+          "It can set up a dangerous state that tricks the user into finishing the action",
+          "It always bypasses all Android permission checks",
+          "It only works on rooted devices",
+          "It cannot carry attacker-controlled parameters"
+        ],
+        correct: [0],
+        feedback: "The slides explain that a deep link can open a sensitive screen and pre-fill attacker-controlled values."
+      },
+      {
+        id: "w3-ai-7",
+        type: "MAQ",
+        prompt: "Which practices fit responsible vulnerability disclosure from the Week 3 slides?",
+        options: [
+          "Report the vulnerability privately",
+          "Find the right security contact, disclosure page or bug bounty channel",
+          "Provide clear technical details",
+          "Exploit real systems repeatedly to maximize measured impact"
+        ],
+        correct: [0, 1, 2],
+        feedback: "The slides recommend private reporting, the right channel and clear technical details. They warn not to exploit real systems."
+      },
+      {
+        id: "w3-ai-8",
+        type: "MCQ",
+        prompt: "Why does the runtime UI tree matter for mobile agents?",
+        options: [
+          "It exposes visible UI elements as machine-readable nodes with text, bounds, clickability and package information",
+          "It guarantees every visible element is safe",
+          "It removes the need for observation after actions",
+          "It contains the app's original source code"
+        ],
+        correct: [0],
+        feedback: "The runtime UI tree helps agents observe and act on the current screen, but it does not guarantee safety."
+      }
+    ];
+
+    const state = {
+      weekId: 1,
+      source: "canvas",
+      answers: JSON.parse(localStorage.getItem("comp6007-mcq-20260614") || "{}")
+    };
+
+    const sourceLabels = { canvas: "Canvas MCQ", ai: "AI Generated MCQs" };
+    const weekList = document.querySelector("#week-list");
+    const questionPanel = document.querySelector("#question-panel");
+    const weekTitle = document.querySelector("#week-title");
+    const weekLabel = document.querySelector("#week-label");
+    const sectionCount = document.querySelector("#section-count");
+    const sectionScore = document.querySelector("#section-score");
+    const sectionMode = document.querySelector("#section-mode");
+    const dataStatus = document.querySelector("#data-status");
+    const overallCount = document.querySelector("#overall-count");
+    const overallMeter = document.querySelector("#overall-meter");
+    const canvasCount = document.querySelector("#canvas-count");
+    const aiCount = document.querySelector("#ai-count");
+    const emptyTemplate = document.querySelector("#empty-template");
+
+    function getCurrentWeek() {
+      return weeks.find((week) => week.id === state.weekId);
+    }
+
+    function getCurrentQuestions() {
+      return getCurrentWeek()[state.source];
+    }
+
+    function keyFor(source, questionId) {
+      return `${source}:${questionId}`;
+    }
+
+    function arraysMatch(a, b) {
+      return a.length === b.length && a.every((value) => b.includes(value));
+    }
+
+    function saveAnswers() {
+      localStorage.setItem("comp6007-mcq-20260614", JSON.stringify(state.answers));
+    }
+
+    function getDisplayWeekNumber(week) {
+      return week.id >= 9 ? week.id + 1 : week.id;
+    }
+
+    function getSectionStatus(week) {
+      const questions = week[state.source] || [];
+      if (questions.length === 0) return "";
+      const checked = questions.filter((question) => state.answers[keyFor(state.source, question.id)]?.checked);
+      if (checked.length !== questions.length) return "";
+      const allCorrect = questions.every((question) => {
+        const stored = state.answers[keyFor(state.source, question.id)];
+        return stored?.checked && arraysMatch(stored.selected, question.correct);
+      });
+      return allCorrect ? " section-correct" : " section-wrong";
+    }
+
+    function appendAbsentWeekButton() {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "week-button absent-week";
+      button.disabled = true;
+      button.innerHTML = `
+        <span class="week-number">9</span>
+        <span class="week-title">Week 9: Absent</span>
+        <span class="week-progress">--</span>
+      `;
+      weekList.appendChild(button);
+    }
+
+    function renderWeekList() {
+      weekList.innerHTML = "";
+      weeks.forEach((week) => {
+        if (week.id === 9) appendAbsentWeekButton();
+        const allWeekQuestions = ["canvas", "ai"].flatMap((source) => week[source].map((question) => ({ source, question })));
+        const answered = allWeekQuestions.filter(({ source, question }) => state.answers[keyFor(source, question.id)]?.checked).length;
+        const total = allWeekQuestions.length;
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `week-button${week.id === state.weekId ? " active" : ""}${getSectionStatus(week)}`;
+        button.innerHTML = `
+          <span class="week-number">${getDisplayWeekNumber(week)}</span>
+          <span class="week-title">${week.title}</span>
+          <span class="week-progress">${answered}/${total}</span>
+        `;
+        button.addEventListener("click", () => {
+          state.weekId = week.id;
+          render();
+        });
+        weekList.appendChild(button);
+      });
+    }
+    function renderQuestion(question, index) {
+      const answerKey = keyFor(state.source, question.id);
+      const stored = state.answers[answerKey] || { selected: [], checked: false };
+      const isMultiple = question.type === "MAQ";
+      const card = document.createElement("article");
+      card.className = "question-card";
+
+      const options = question.options.map((option, optionIndex) => {
+        const selected = stored.selected.includes(optionIndex);
+        const checkedClass = stored.checked
+          ? question.correct.includes(optionIndex)
+            ? " correct"
+            : selected
+              ? " incorrect"
+              : ""
+          : "";
+        return `
+          <label class="option${checkedClass}">
+            <input type="${isMultiple ? "checkbox" : "radio"}" name="${question.id}" value="${optionIndex}" ${selected ? "checked" : ""} />
+            <span>${option}</span>
+          </label>
+        `;
+      }).join("");
+
+      const isCorrect = stored.checked && arraysMatch(stored.selected, question.correct);
+      const feedbackClass = stored.checked ? ` visible${isCorrect ? " correct-answer" : ""}` : "";
+      const feedbackText = stored.checked
+        ? `${isCorrect ? "Correct." : "Not quite."} ${question.feedback}`
+        : isMultiple
+          ? "Choose every correct option, then check your answer."
+          : "Choose one option, then check your answer.";
+
+      card.innerHTML = `
+        <div class="question-header">
+          <h3>Question ${index + 1}</h3>
+          <span class="pill">${isMultiple ? "Multiple answers" : "Single answer"}</span>
+        </div>
+        <div class="question-body">
+          <p class="prompt">${question.prompt}</p>
+          <div class="options">${options}</div>
+          <div class="actions">
+            <button class="check-button" type="button">Check answer</button>
+            <button class="reset-button" type="button">Clear</button>
+          </div>
+          <div class="feedback${feedbackClass}">${feedbackText}</div>
+        </div>
+      `;
+
+      card.querySelectorAll("input").forEach((input) => {
+        input.addEventListener("change", () => {
+          const selected = Array.from(card.querySelectorAll("input:checked")).map((checkedInput) => Number(checkedInput.value));
+          state.answers[answerKey] = { selected, checked: false };
+          saveAnswers();
+          render();
+        });
+      });
+
+      card.querySelector(".check-button").addEventListener("click", () => {
+        const selected = Array.from(card.querySelectorAll("input:checked")).map((checkedInput) => Number(checkedInput.value));
+        state.answers[answerKey] = { selected, checked: true };
+        saveAnswers();
+        render();
+      });
+
+      card.querySelector(".reset-button").addEventListener("click", () => {
+        delete state.answers[answerKey];
+        saveAnswers();
+        render();
+      });
+
+      return card;
+    }
+
+    function renderQuestions() {
+      const questions = getCurrentQuestions();
+      questionPanel.innerHTML = "";
+      if (questions.length === 0) {
+        questionPanel.appendChild(emptyTemplate.content.cloneNode(true));
+        return;
+      }
+      questions.forEach((question, index) => questionPanel.appendChild(renderQuestion(question, index)));
+    }
+
+    function renderStats() {
+      const week = getCurrentWeek();
+      const questions = getCurrentQuestions();
+      const correct = questions.filter((question) => {
+        const stored = state.answers[keyFor(state.source, question.id)];
+        return stored?.checked && arraysMatch(stored.selected, question.correct);
+      }).length;
+      const allQuestions = weeks.flatMap((weekItem) => [
+        ...weekItem.canvas.map((question) => ({ source: "canvas", question })),
+        ...weekItem.ai.map((question) => ({ source: "ai", question }))
+      ]);
+      const answered = allQuestions.filter(({ source, question }) => state.answers[keyFor(source, question.id)]?.checked).length;
+      const total = allQuestions.length;
+
+      sectionCount.textContent = questions.length;
+      sectionScore.textContent = correct;
+      sectionMode.textContent = sourceLabels[state.source];
+      canvasCount.textContent = week.canvas.length;
+      aiCount.textContent = week.ai.length;
+      overallCount.textContent = `${answered} / ${total}`;
+      overallMeter.style.width = total ? `${(answered / total) * 100}%` : "0%";
+      dataStatus.textContent = `W3 Canvas: ${weeks[2].canvas.length}`;
+    }
+
+    function render() {
+      const week = getCurrentWeek();
+      weekTitle.textContent = week.title;
+      weekLabel.textContent = `Week ${getDisplayWeekNumber(week)}`;
+      document.querySelectorAll(".source-tab").forEach((tab) => {
+        tab.classList.toggle("active", tab.dataset.source === state.source);
+      });
+      renderWeekList();
+      renderQuestions();
+      renderStats();
+    }
+
+    document.querySelectorAll(".source-tab").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        state.source = tab.dataset.source;
+        render();
+      });
+    });
+
+
+    document.querySelector("#reset-section").addEventListener("click", () => {
+      getCurrentQuestions().forEach((question) => delete state.answers[keyFor(state.source, question.id)]);
+      saveAnswers();
+      render();
+    });
+    window.COMP6007_MCQ_DATA_CHECK = {
+      weeks: weeks.length,
+      week1Canvas: weeks[0].canvas.length,
+      week2Canvas: weeks[1].canvas.length,
+      week3Canvas: weeks[2].canvas.length,
+      week1AI: weeks[0].ai.length,
+      week2AI: weeks[1].ai.length,
+      week3AI: weeks[2].ai.length
+    };
+
+    render();
+  </script>
+  <script src="canvas-weeks-4-6.js?v=20260616"></script>
+  <script src="canvas-weeks-7-10.js?v=20260616"></script>
+</body>
+</html>
+
+
+
+
+
+
+
