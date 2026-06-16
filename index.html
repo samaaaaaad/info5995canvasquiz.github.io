@@ -552,7 +552,7 @@
   </template>
 
   <script>
-    const weeks = Array.from({ length: 10 }, (_, index) => ({
+    const weeks = Array.from({ length: 12 }, (_, index) => ({
       id: index + 1,
       title: `Week ${index + 1}`,
       canvas: [],
@@ -567,8 +567,10 @@
     weeks[5].title = "Week 6: Cryptography Basics Part 3 and Secure Network";
     weeks[6].title = "Week 7: Secure Network, UDP, TCP, TLS and HTTPS";
     weeks[7].title = "Week 8: System Security";
-    weeks[8].title = "Week 10: Consensus, Blockchain and Decentralised Finance";
-    weeks[9].title = "Week 11: Human, Organisational and Regulatory Aspects";
+    weeks[8].title = "Week 9";
+    weeks[9].title = "Week 10: Consensus, Blockchain and Decentralised Finance";
+    weeks[10].title = "Week 11: Program Analysis, Human Factors, and Responsible Research";
+    weeks[11].title = "Week 12: Review and Research Discussion";
 
     weeks[0].ai = [
       {
@@ -1045,7 +1047,6 @@
     function renderWeekList() {
       weekList.innerHTML = "";
       weeks.forEach((week) => {
-        if (week.id === 9) appendAbsentWeekButton();
         const allWeekQuestions = ["canvas", "ai"].flatMap((source) => week[source].map((question) => ({ source, question })));
         const answered = allWeekQuestions.filter(({ source, question }) => state.answers[keyFor(source, question.id)]?.checked).length;
         const total = allWeekQuestions.length;
@@ -1210,8 +1211,11 @@
   </script>
   <script src="canvas-weeks-4-6.js?v=20260616"></script>
   <script src="canvas-weeks-7-10.js?v=20260616"></script>
+  <script src="canvas-weeks-11-12.js?v=20260616"></script>
 </body>
 </html>
+
+
 
 
 
